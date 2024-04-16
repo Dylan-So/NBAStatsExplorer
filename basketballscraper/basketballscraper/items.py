@@ -7,7 +7,8 @@ import scrapy
 
 
 class Player(scrapy.Item):
-    player_name = scrapy.Field()
+    name = scrapy.Field()
+    id = scrapy.Field()
     games = scrapy.Field()
 
 class GameStats(scrapy.Item):

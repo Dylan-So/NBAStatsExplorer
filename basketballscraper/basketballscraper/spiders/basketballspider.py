@@ -12,15 +12,27 @@ class BasketballspiderSpider(scrapy.Spider):
     start_urls = ["https://www.basketball-reference.com/players/"]
 
     def start_requests(self):
-        with open("players.json", "r") as players:
-            player_names = json.load(players)
+        with open("player_list.json", "r") as players_file:
+            players = json.load(players_file)
         
-        for player_name in player_names[0]['players']:
-            index_url = self.get_index_url(player_name)
-            # Generate HTTP request to find get player index, EX: Nikola Jokic -> jokicni01
-            player_id = yield scrapy.Request(index_url, callback=self.get_player_id, meta={"player_name": player_name})
-            # get_player_url() will get player ID from current URL and create a request to the actual player URL for parsing
-            self.get_player_url(player_id)
+        for player in players['players']:
+            if ('id' in player):
+                request = scrapy.Request(
+                    self.get_player_url(player['id']), 
+                    callback=self.parse,
+                    meta={
+                        "player_name": player['player_name'], 
+                        "player_id": player['id']
+                    }
+
+                )
+                yield request
+            else:
+                index_url = self.get_index_url(player['name'].replace('.', '').replace(',',''))
+                # Generate HTTP request to find get player index, EX: Nikola Jokic -> jokicni01
+                player_id = yield scrapy.Request(index_url, callback=self.get_player_id, meta={"player_name": player['name']})
+                # get_player_url() will get player ID from current URL and create a request to the actual player URL for parsing
+                self.get_player_url(player_id)
 
     def get_index_url(self, player_name):
         url = f"https://www.basketball-reference.com/search/search.fcgi?search={player_name}"
@@ -33,7 +45,11 @@ class BasketballspiderSpider(scrapy.Spider):
             request = scrapy.Request(
                     self.get_player_url(player_id), 
                     callback=self.parse,
-                    meta={"player_name": response.meta['player_name']}
+                    meta={
+                        "player_name": response.meta['player_name'], 
+                        "player_id": player_id
+                    }
+
                 )
             yield request
         except:
@@ -47,7 +63,8 @@ class BasketballspiderSpider(scrapy.Spider):
     def parse(self, response):
         regular_season_table = response.xpath("//table[@id = 'pgl_basic']/tbody/tr")
         player = Player()
-        player['player_name'] = response.meta['player_name']
+        player['name'] = response.meta['player_name']
+        player['id'] = response.meta['player_id']
         games = []
 
         for row in regular_season_table:
