@@ -1,8 +1,10 @@
-<script setup></script>
+<script setup>
+const input = defineModel('input')
+</script>
 
 <template>
   <label class="input input-bordered flex items-center gap-2">
-    <input type="text" class="grow" placeholder="Search" />
+    <input type="text" class="grow" placeholder="Search" v-model="input" />
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 16 16"

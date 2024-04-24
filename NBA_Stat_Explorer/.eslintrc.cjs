@@ -21,5 +21,8 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
+  },
+  rules: {
+    'vue/no-v-model-argument': 'off'
   }
 }

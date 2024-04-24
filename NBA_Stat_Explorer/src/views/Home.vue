@@ -1,5 +1,8 @@
 <script setup>
+import { ref } from 'vue'
 import SearchBar from '../components/SearchBar.vue'
+
+const input = ref(null)
 </script>
 
 <template>
@@ -10,8 +13,9 @@ import SearchBar from '../components/SearchBar.vue'
         <p class="py-6">
           Discover NBA player stats: Explore performance, milestones, and insights like never
           before!
+          {{ input }}
         </p>
-        <SearchBar />
+        <SearchBar v-model:input="input" />
       </div>
     </div>
   </div>
